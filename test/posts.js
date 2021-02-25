@@ -43,5 +43,13 @@ module.exports = (g) => {
       res.body.should.have.lengthOf(1)
       res.body[0].title.should.equal(p1.title)
     })
+
+    it('shall get the pok1 with pagination', async () => {
+      const res = await r.get('/posts?currentPage=1&perPage=10&sort=id:asc')
+      res.status.should.equal(200)
+      res.body.data.should.have.lengthOf(1)
+      res.body.data[0].title.should.equal(p1.title)
+      res.body.pagination.currentPage = 1
+    })
   })
 }
