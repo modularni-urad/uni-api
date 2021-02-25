@@ -15,6 +15,11 @@ export default async (ctx) => {
     }).catch(next)
   })
 
+  app.get('/_:name/config.json', (req, res, next) => {
+    if (!configs[req.params.name]) return next(404)
+    res.json(configs[req.params.name])
+  })
+
   app.post('/:name',
     // auth.requireMembership(ROLE.PROJECT_INSERTER),
     JSONBodyParser,
@@ -26,7 +31,7 @@ export default async (ctx) => {
     })
 
   app.put('/:name/:id',
-    // (req, res, next) => { 
+    // (req, res, next) => {
     //   methods.canIUpdate(req.params.id, auth.getUID(req), knex).then(can => {
     //     return can ? next() : next(401)
     //   }).catch(next)
@@ -38,6 +43,6 @@ export default async (ctx) => {
         .then(updated => { res.json(updated[0]) })
         .catch(next)
     })
- 
+
   return app
 }
