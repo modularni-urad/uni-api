@@ -4,6 +4,7 @@ export default {
     {
       "name": "title",
       "component": "dyn-input",
+      "field": true,
       "type": 'string',
       "label": "Nazev",
       "rules": 'required'
@@ -17,7 +18,9 @@ export default {
     {
       "name": "published",
       "type": 'date',
+      "field": true,
       "component": "dyn-input",
+      "inputtype": "date",
       "label": "Publikováno"
     },
     {
