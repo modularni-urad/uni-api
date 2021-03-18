@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import { attachPaginate } from 'knex-paginate'
 import initErrorHandlers from 'modularni-urad-utils/error_handlers'
 import initAuth from 'modularni-urad-utils/auth'
@@ -9,6 +10,7 @@ export async function init (mocks = null) {
   const knex = mocks ? await mocks.dbinit() : await initDB(false)
   attachPaginate()
   const app = express()
+  app.use(cors())
   const auth = mocks ? mocks.auth : initAuth(app)
 
   await initRoutes({ express, knex, auth, app })
