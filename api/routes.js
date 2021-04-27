@@ -39,7 +39,8 @@ export default async (ctx) => {
     JSONBodyParser,
     (req, res, next) => {
       if (!configs[req.params.name]) return next(404)
-      methods.update(req.params.name, req.params.id, req.body, configs, knex)
+      const uid = auth.getUID(req)
+      methods.update(req.params.name, req.params.id, req.body, uid, configs, knex)
         .then(updated => { res.json(updated[0]) })
         .catch(next)
     })

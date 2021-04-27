@@ -18,13 +18,15 @@ function list (name, query, configs, knex) {
 }
 
 function create (name, data, author, configs, knex) {
+  configs[name].beforeCreate && configs[name].beforeCreate(data, author)
   const editables = _.map(configs[name].attrs, i => i.name)
   data = _.pick(data, editables)
   data.createdby = author
   return knex(name).insert(data).returning('*')
 }
 
-function update (name, id, data, configs, knex) {
+function update (name, id, data, author, configs, knex) {
+  configs[name].beforeUpdate && configs[name].beforeUpdate(data, id, author)
   const editables = _.map(configs[name].attrs, i => i.name)
   data = _.pick(data, editables)
   return knex(name).where({ id }).update(data).returning('*')

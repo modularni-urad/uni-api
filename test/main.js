@@ -44,6 +44,7 @@ describe('app', () => {
     //
     const submodules = [
       './posts',
+      './files',
       './config'
     ]
     submodules.map((i) => {
