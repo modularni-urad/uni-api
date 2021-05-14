@@ -13,7 +13,7 @@ export async function init (mocks = null) {
   app.use(cors())
   const auth = mocks ? mocks.auth : initAuth(app)
 
-  await initRoutes({ express, knex, auth, app })
+  initRoutes({ express, knex, auth, app })
 
   initErrorHandlers(app) // ERROR HANDLING
   return app

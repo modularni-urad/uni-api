@@ -10,15 +10,20 @@ function columnDefinition (config, table, knex) {
   }
 }
 
+export function createTableName (config) {
+  return `${config.domain.replace(/\./g, '_')}-${config.name}`
+}
+
 export default async function (config, knex) {
-  const tableExists = await knex.schema.hasTable(config.name)
+  const tableName = createTableName(config)
+  const tableExists = await knex.schema.hasTable(tableName)
   if (tableExists) {
     await Promise.all(_.each(config.attrs, a => {
       // columnDefinition(a, table, knex) // TODO
       // hasColumn
     }))
   } else {
-    await knex.schema.createTable(config.name, (table) => {
+    await knex.schema.createTable(tableName, (table) => {
       table.increments('id').primary()
       table.timestamp('created').notNullable().defaultTo(knex.fn.now())
       table.string('createdby', 128).notNullable()

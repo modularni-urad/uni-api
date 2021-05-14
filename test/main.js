@@ -30,7 +30,7 @@ describe('app', () => {
     init(mocks).then(app => {
       g.server = app.listen(port, '127.0.0.1', (err) => {
         if (err) return done(err)
-        done()
+        setTimeout(done, 1500)
       })
     }).catch(done)
   })
