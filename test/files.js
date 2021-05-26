@@ -18,6 +18,14 @@ module.exports = (g) => {
       type: 'text/markdown'
     }
   }
+  const chage2 = {
+    ctype: "image/jpeg",
+    filename: "2009-024.jpg",
+    nazev: "Ohňostroj",
+    popis: null,
+    size: 77391,
+    tags: "ts2009,ts"
+  }
 
   return describe('files', () => {
 
@@ -47,6 +55,13 @@ module.exports = (g) => {
       res.body.should.have.lengthOf(1)
       res.body[0].nazev.should.equal(change.nazev)
       res.body[0].size.should.equal(change.file.size)
+    })
+
+    it('shall update second time the file', () => {
+      return r.put(`/files/${p1.id}`).send(chage2)
+      .then(res => {
+        res.should.have.status(200)
+      })
     })
   })
 }
