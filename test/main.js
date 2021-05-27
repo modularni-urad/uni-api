@@ -11,8 +11,7 @@ const port = process.env.PORT || 3333
 const g = {
   baseurl: `http://localhost:${port}`,
   UID: 110,
-  user: { id : 110 },
-  usergroups: []
+  user: { id : 110, groups: [] }
 }
 const mocks = {
   dbinit: dbinit,
@@ -24,12 +23,11 @@ const mocks = {
     return {
       required: (req, res, next) => { return next() },
       requireMembership: (gid) => (req, res, next) => {
-        return g.usergroups.indexOf(gid) >= 0 ? next() : next(403)
+        return g.user.groups.indexOf(gid) >= 0 ? next() : next(403)
       },
       getUID: (req) => g.UID
     }
-  },
-  ttn: { data: () => new Promise(resolve => resolve(g.ttnClient)) }
+  }
 }
 
 describe('app', () => {

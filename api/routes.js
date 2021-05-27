@@ -19,17 +19,28 @@ export default (ctx) => {
     res.json(req.entityCfg)
   })
 
-  app.post('/:name', _getConfig, auth.required, JSONBodyParser, (req, res, next) => {
+  app.post('/:name', _getConfig, _canModify, JSONBodyParser, (req, res, next) => {
     methods.create(req.body, req.user, req.entityCfg, knex)
       .then(created => { res.status(201).json(created[0]) })
       .catch(next)
   })
 
-  app.put('/:name/:id', _getConfig, auth.required, JSONBodyParser, (req, res, next) => {
+  app.put('/:name/:id', _getConfig, _canModify, JSONBodyParser, (req, res, next) => {
     methods.update(req.params.id, req.body, req.user, req.entityCfg, knex)
       .then(updated => { res.json(updated[0]) })
       .catch(next)
   })
+  
+  function _canModify (req, res, next) {
+    function amIModifyer () {
+      if (!req.entityCfg.modifyGroups) return true
+      const required = req.entityCfg.modifyGroups.split(',')
+      const i = _.intersection(required, req.user.groups)
+      return i.length > 0
+    }
+    const canI = req.user && amIModifyer()
+    return canI ? next() : next(401)
+  }
 
   function _getConfig (req, res, next) {
     const domain = process.env.DOMAIN || req.hostname

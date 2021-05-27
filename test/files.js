@@ -36,6 +36,7 @@ module.exports = (g) => {
         type: 'text/markdown'
       }
       const data = Object.assign({ file }, p1)
+      g.user.groups = [ 'fileupdater' ]
       const res = await r.post('/files').send(data)
       res.status.should.equal(201)
       // res.body.filename.should.equal(file.name)
