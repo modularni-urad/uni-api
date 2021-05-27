@@ -19,13 +19,13 @@ export default (ctx) => {
     res.json(req.entityCfg)
   })
 
-  app.post('/:name', _getConfig, JSONBodyParser, (req, res, next) => {
+  app.post('/:name', _getConfig, auth.required, JSONBodyParser, (req, res, next) => {
     methods.create(req.body, req.user, req.entityCfg, knex)
       .then(created => { res.status(201).json(created[0]) })
       .catch(next)
   })
 
-  app.put('/:name/:id', _getConfig, JSONBodyParser, (req, res, next) => {
+  app.put('/:name/:id', _getConfig, auth.required, JSONBodyParser, (req, res, next) => {
     methods.update(req.params.id, req.body, req.user, req.entityCfg, knex)
       .then(updated => { res.json(updated[0]) })
       .catch(next)
