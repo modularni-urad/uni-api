@@ -15,34 +15,21 @@ export default (ctx) => {
     }).catch(next)
   })
 
-  app.get('/_:name/config.json', _getConfig, (req, res, next) => {
+  app.get('/:name/config.json', _getConfig, (req, res, next) => {
     res.json(req.entityCfg)
   })
 
-  app.post('/:name',
-    _getConfig,
-    // auth.requireMembership(ROLE.PROJECT_INSERTER),
-    JSONBodyParser,
-    (req, res, next) => {
-      methods.create(req.body, auth.getUID(req), req.entityCfg, knex)
-        .then(created => { res.status(201).json(created[0]) })
-        .catch(next)
-    })
+  app.post('/:name', _getConfig, JSONBodyParser, (req, res, next) => {
+    methods.create(req.body, req.user, req.entityCfg, knex)
+      .then(created => { res.status(201).json(created[0]) })
+      .catch(next)
+  })
 
-  app.put('/:name/:id',
-    _getConfig,
-    // (req, res, next) => {
-    //   methods.canIUpdate(req.params.id, auth.getUID(req), knex).then(can => {
-    //     return can ? next() : next(401)
-    //   }).catch(next)
-    // },
-    JSONBodyParser,
-    (req, res, next) => {
-      const uid = auth.getUID(req)
-      methods.update(req.params.id, req.body, uid, req.entityCfg, knex)
-        .then(updated => { res.json(updated[0]) })
-        .catch(next)
-    })
+  app.put('/:name/:id', _getConfig, JSONBodyParser, (req, res, next) => {
+    methods.update(req.params.id, req.body, req.user, req.entityCfg, knex)
+      .then(updated => { res.json(updated[0]) })
+      .catch(next)
+  })
 
   function _getConfig (req, res, next) {
     const domain = process.env.DOMAIN || req.hostname

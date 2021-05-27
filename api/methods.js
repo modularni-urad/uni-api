@@ -18,23 +18,19 @@ function list (query, config, knex) {
   return currentPage ? qb.paginate({ perPage, currentPage }) : qb
 }
 
-function create (data, author, config, knex) {
-  config.beforeCreate && config.beforeCreate(data, author)
+function create (data, user, config, knex) {
+  config.beforeCreate && config.beforeCreate(data, user)
   const editables = _.map(config.attrs, i => i.name)
   data = _.pick(data, editables)
-  data.createdby = author
+  data.createdby = user.id
   return knex(createTableName(config)).insert(data).returning('*')
 }
 
-function update (id, data, author, config, knex) {
-  config.beforeUpdate && config.beforeUpdate(data, id, author)
+async function update (id, data, user, config, knex) {
+  const qBuilder = knex(createTableName(config))
+  const existing = await qBuilder.where({ id }).first()
+  config.beforeUpdate && config.beforeUpdate(data, existing, user)
   const editables = _.map(config.attrs, i => i.name)
   data = _.pick(data, editables)
-  return knex(createTableName(config)).where({ id }).update(data).returning('*')
+  return qBuilder.where({ id }).update(data).returning('*')
 }
-
-// function canIUpdate (id, user, knex) {
-//   return knex(TNAMES.PROJEKTY).where({ id }).first().then(p => {
-//     return Number(p.manager) === Number(user)
-//   })
-// }

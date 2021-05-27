@@ -11,7 +11,7 @@ export async function init (mocks = null) {
   attachPaginate()
   const app = express()
   app.use(cors())
-  const auth = mocks ? mocks.auth : initAuth(app)
+  const auth = mocks ? mocks.initAuth(app) : initAuth(app)
 
   initRoutes({ express, knex, auth, app })
 
