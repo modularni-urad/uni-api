@@ -15,18 +15,12 @@ const g = {
 }
 const mocks = {
   dbinit: dbinit,
-  initAuth: (app) => {
-    app.use((req, res, next) => {
+  auth: {
+    required: (req, res, next) => {
       req.user = g.user
       next()
-    })
-    return {
-      required: (req, res, next) => { return next() },
-      requireMembership: (gid) => (req, res, next) => {
-        return g.user.groups.indexOf(gid) >= 0 ? next() : next(403)
-      },
-      getUID: (req) => g.UID
-    }
+    },
+    getUID: (req) => g.UID
   }
 }
 
