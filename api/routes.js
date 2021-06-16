@@ -15,7 +15,7 @@ export default (ctx) => {
     }).catch(next)
   })
 
-  app.get('/:name/config.json', _getConfig, auth.required, (req, res, next) => {
+  app.get('/:name/config.json', _getConfig, (req, res, next) => {
     res.json(req.entityCfg)
   })
 
