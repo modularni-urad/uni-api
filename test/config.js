@@ -38,7 +38,7 @@ module.exports = (g) => {
     })
 
     it('must NOT get any events', async () => {
-      const res = await r.get('/events')
+      const res = await r.get('/events?currentPage=1')
       res.status.should.equal(404)
     })
 
@@ -49,9 +49,9 @@ module.exports = (g) => {
           resolve()
         }, 1500)
       })
-      const res = await r.get('/events')
+      const res = await r.get('/events?currentPage=1')
       res.status.should.equal(200)
-      res.body.should.have.lengthOf(0)
+      res.body.data.should.have.lengthOf(0)
     })
 
   })

@@ -1,11 +1,10 @@
-import bodyParser from 'body-parser'
 import _ from 'underscore'
-import methods from './methods'
+import methods from 'entity-api-base'
 import loadConfig from './config_manager'
 
 export default (ctx) => {
-  const { knex, auth, app } = ctx
-  const JSONBodyParser = bodyParser.json()
+  const { knex, auth, app, express } = ctx
+  const JSONBodyParser = express.json()
   const configs = loadConfig(knex)
 
   app.get('/:name', _getConfig, (req, res, next) => {    
@@ -19,16 +18,24 @@ export default (ctx) => {
     res.json(req.entityCfg)
   })
 
-  app.post('/:name', _getConfig, auth.required, _canModify, JSONBodyParser, (req, res, next) => {
-    methods.create(req.body, req.user, req.entityCfg, knex)
+  app.post('/:name', _getConfig, auth.required, _canModify, JSONBodyParser, _checkData, (req, res, next) => {
+    Object.assign(req.body, { createdby: auth.getUID(req.user) })
+    req.entityCfg.beforeCreate && req.entityCfg.beforeCreate(req.body, req.user)
+    console.log(req.body);
+    methods.create(req.body, req.entityCfg, knex)
       .then(created => { res.status(201).json(created[0]) })
       .catch(next)
   })
 
-  app.put('/:name/:id', _getConfig, auth.required, _canModify, JSONBodyParser, (req, res, next) => {
-    methods.update(req.params.id, req.body, req.user, req.entityCfg, knex)
-      .then(updated => { res.json(updated[0]) })
-      .catch(next)
+  app.put('/:name/:id', _getConfig, auth.required, _canModify, JSONBodyParser, _checkData, async (req, res, next) => {
+    try {
+      const existing = await methods.get(req.params.id, req.entityCfg, knex)
+      req.entityCfg.beforeUpdate && req.entityCfg.beforeUpdate(req.body, existing, req.user)
+      const updated = await methods.update(req.params.id, req.body, req.entityCfg, knex)
+      res.json(updated[0])
+    } catch(err) {
+      next(err)
+    }
   })
   
   function _canModify (req, res, next) {
@@ -42,9 +49,19 @@ export default (ctx) => {
     return canI ? next() : next(401)
   }
 
+  function _checkData (req, res, next) {
+    try {
+      methods.check_data(req.body, req.entityCfg)
+      next()
+    } catch (err) {
+      next(err)
+    }
+  }
+
   function _getConfig (req, res, next) {
     const domain = process.env.DOMAIN || req.hostname
     req.entityCfg = _.get(configs, [domain, req.params.name], null)
+    
     return req.entityCfg ? next() : next(404)
   }
 

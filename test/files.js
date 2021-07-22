@@ -22,9 +22,7 @@ module.exports = (g) => {
     ctype: "image/jpeg",
     filename: "2009-024.jpg",
     nazev: "Ohňostroj",
-    popis: null,
     size: 77391,
-    tags: "ts2009,ts"
   }
 
   return describe('files', () => {
@@ -51,11 +49,11 @@ module.exports = (g) => {
     })
 
     it('shall get the file', async () => {
-      const res = await r.get('/files')
+      const res = await r.get('/files?currentPage=1')
       res.status.should.equal(200)
-      res.body.should.have.lengthOf(1)
-      res.body[0].nazev.should.equal(change.nazev)
-      res.body[0].size.should.equal(change.file.size)
+      res.body.data.should.have.lengthOf(1)
+      res.body.data[0].nazev.should.equal(change.nazev)
+      res.body.data[0].size.should.equal(change.file.size)
     })
 
     it('shall update second time the file', () => {
