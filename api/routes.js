@@ -15,7 +15,18 @@ export default (ctx) => {
   })
 
   app.get('/:name/config.json', _getConfig, (req, res, next) => {
-    res.json(req.entityCfg)
+    res.json(_.omit(req.entityCfg, 'tablename', 'domain'))
+  })
+  app.get('/:name/export.csv', _getConfig, (req, res, next) => {
+    res.set({
+      'Content-Type': 'text/csv',
+      'Transfer-Encoding': 'chunked'
+    })
+    methods.csv_export(req.query, req.entityCfg, res, knex)
+      .then(created => {
+        res.end()
+      })
+      .catch(next)
   })
 
   app.post('/:name', _getConfig, auth.required, _canModify, JSONBodyParser, _checkData, (req, res, next) => {

@@ -33,6 +33,7 @@ module.exports = (g) => {
     it('shall get posts config.json', async () => {
       const res = await r.get('/posts/config.json')
       res.status.should.equal(200)
+      console.log(res.body);
       res.body.attrs.should.have.lengthOf(4)
       res.body.attrs[0].name.should.equal('title')
     })

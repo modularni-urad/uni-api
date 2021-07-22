@@ -44,5 +44,11 @@ module.exports = (g) => {
       res.body.data[0].title.should.equal(p1.title)
       res.body.pagination.currentPage = 1
     })
+
+    it('shall get csv export', async () => {
+      const res = await r.get('/posts/export.csv')
+      res.status.should.equal(200)
+      res.headers['content-type'].indexOf('text/csv').should.equal(0)
+    })
   })
 }
