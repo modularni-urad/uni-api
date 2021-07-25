@@ -7,7 +7,8 @@ export default (ctx) => {
   const JSONBodyParser = express.json()
   const configs = loadConfig(knex)
 
-  app.get('/:name', _getConfig, (req, res, next) => {    
+  app.get('/:name', _getConfig, (req, res, next) => {
+    req.query.filter = req.query.filter ? JSON.parse(req.query.filter) : undefined
     methods.list(req.query, req.entityCfg, knex).then(info => {
       res.json(info)
       next()
@@ -22,6 +23,7 @@ export default (ctx) => {
       'Content-Type': 'text/csv',
       'Transfer-Encoding': 'chunked'
     })
+    req.query.filter = req.query.filter ? JSON.parse(req.query.filter) : undefined
     methods.csv_export(req.query, req.entityCfg, res, knex)
       .then(created => {
         res.end()

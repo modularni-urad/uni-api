@@ -45,6 +45,14 @@ module.exports = (g) => {
       res.body.pagination.currentPage = 1
     })
 
+    it('shall get the pok1 with filter', async () => {
+      const filter = JSON.stringify({ title: p1.title })
+      const res = await r.get('/posts?filter=' + filter)
+      res.status.should.equal(200)
+      res.body.should.have.lengthOf(1)
+      res.body[0].title.should.equal(p1.title)
+    })
+
     it('shall get csv export', async () => {
       const res = await r.get('/posts/export.csv')
       res.status.should.equal(200)
