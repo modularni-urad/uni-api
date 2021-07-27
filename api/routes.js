@@ -32,7 +32,7 @@ export default (ctx) => {
   })
 
   app.post('/:name', _getConfig, auth.required, _canModify, JSONBodyParser, _checkData, (req, res, next) => {
-    Object.assign(req.body, { createdby: auth.getUID(req.user) })
+    Object.assign(req.body, { createdby: req.user.id })
     req.entityCfg.beforeCreate && req.entityCfg.beforeCreate(req.body, req.user)
     console.log(req.body);
     methods.create(req.body, req.entityCfg, knex)

@@ -34,15 +34,15 @@ module.exports = (g) => {
         type: 'text/markdown'
       }
       const data = Object.assign({ file }, p1)
-      g.user.groups = [ 'fileupdater' ]
-      const res = await r.post('/files').send(data)
+      g.mockUser.groups = [ 'fileupdater' ]
+      const res = await r.post('/files').send(data).set('Authorization', 'Bearer f')
       res.status.should.equal(201)
       // res.body.filename.should.equal(file.name)
       Object.assign(p1, { id: res.body })
     })
 
     it('shall update the file', () => {
-      return r.put(`/files/${p1.id}`).send(change)
+      return r.put(`/files/${p1.id}`).send(change).set('Authorization', 'Bearer f')
       .then(res => {
         res.should.have.status(200)
       })
@@ -57,7 +57,7 @@ module.exports = (g) => {
     })
 
     it('shall update second time the file', () => {
-      return r.put(`/files/${p1.id}`).send(chage2)
+      return r.put(`/files/${p1.id}`).send(chage2).set('Authorization', 'Bearer f')
       .then(res => {
         res.should.have.status(200)
       })

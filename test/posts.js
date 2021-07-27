@@ -21,8 +21,8 @@ module.exports = (g) => {
     // })
 
     it('shall create a new item p1', async () => {
-      // g.usergroups.push('waterman_admin')
-      const res = await r.post('/posts').send(p1)
+      // g.mockUser.usergroups.push('waterman_admin')
+      const res = await r.post('/posts').send(p1).set('Authorization', 'Bearer f')
       res.status.should.equal(201)
     })
 
