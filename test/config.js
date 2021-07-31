@@ -10,6 +10,9 @@ module.exports = (g) => {
   const r = chai.request(g.baseurl)
   const newConfig = `export default {
     name: 'events',
+    insertingIPs: {
+      '127.0.0.1': 'system'
+    },
     attrs: [
       {
         "name": "title",
@@ -53,6 +56,15 @@ module.exports = (g) => {
       const res = await r.get('/events?currentPage=1')
       res.status.should.equal(200)
       res.body.data.should.have.lengthOf(0)
+    })
+
+    const p1 = {
+      title: 'app1'
+    }
+    it('shall create a new item p1', async () => {
+      // g.mockUser.usergroups.push('waterman_admin')
+      const res = await r.post('/events').send(p1)
+      res.status.should.equal(201)
     })
 
   })

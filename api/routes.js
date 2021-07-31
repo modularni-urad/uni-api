@@ -31,7 +31,7 @@ export default (ctx) => {
       .catch(next)
   })
 
-  app.post('/:name', _getConfig, auth.required, _canModify, JSONBodyParser, _checkData, (req, res, next) => {
+  app.post('/:name', _getConfig, _required, _canModify, JSONBodyParser, _checkData, (req, res, next) => {
     Object.assign(req.body, { createdby: req.user.id })
     req.entityCfg.beforeCreate && req.entityCfg.beforeCreate(req.body, req.user)
     console.log(req.body);
@@ -76,6 +76,20 @@ export default (ctx) => {
     req.entityCfg = _.get(configs, [domain, req.params.name], null)
     
     return req.entityCfg ? next() : next(404)
+  }
+
+  function _getSystemUser (req) {
+    const found = _.find(_.keys(req.entityCfg.insertingIPs), i => {
+      return req.ip === i
+    })
+    found && Object.assign(req, { user: { id: req.entityCfg.insertingIPs[found] }})
+  }
+
+  function _required (req, res, next) {
+    req.entityCfg.insertingIPs && _getSystemUser(req)
+    return req.user === undefined
+      ? auth.required(req, res, next)
+      : next()
   }
 
   return app
