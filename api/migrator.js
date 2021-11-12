@@ -11,10 +11,21 @@ function columnDefinition (config, table, knex) {
 }
 
 export function createTableName (config) {
-  return `${config.domain.replace(/\./g, '_')}-${config.name}`
+  return `${config.orgid}_${config.name}`
 }
 
-export default async function (config, knex) {
+export default function migrateAll (configs, knex) {
+  const promises = []
+  for (let orgid in configs) {
+    for (let name in configs[orgid].collections) {
+      const p = migrate(configs[orgid].collections[name], knex)
+      p && promises.push(p)
+    }
+  }
+  return Promise.all(promises)
+}
+
+async function migrate (config, knex) {
   const tableName = createTableName(config)
   const tableExists = await knex.schema.hasTable(tableName)
   if (tableExists) {

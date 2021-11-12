@@ -1,6 +1,6 @@
 import _ from 'underscore'
 const Knex = require('knex')
-const knexHooks = require('knex-hooks')
+// const knexHooks = require('knex-hooks')
 
 // const rand = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 15)
 // process.env.DATABASE_URL = rand + 'test.sqlite'
@@ -15,7 +15,7 @@ export default function initDB () {
     debug: true
   }
   const knex = Knex(opts)
-  knexHooks(knex)
+  // knexHooks(knex)
   // knex.addHook('after', 'insert', TNAMES.FILES, (when, method, table, params) => {
   //   const data = knexHooks.helpers.getInsertData(params.query)
   //   data.id = params.result[0]
