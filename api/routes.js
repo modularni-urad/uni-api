@@ -76,7 +76,7 @@ export default (ctx, app) => {
   }
 
   function _getConfig (req, res, next) {
-    req.entityCfg = _.get(req.config, ['collections', req.params.name], null)
+    req.entityCfg = _.get(req.orgconfig, ['collections', req.params.name], null)
     return req.entityCfg
       ? next() 
       : next(new APIError(404, `unknown collection ${req.params.name}`))

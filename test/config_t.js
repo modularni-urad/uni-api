@@ -44,13 +44,13 @@ collections:
     })
 
     it('shall trigger events config added and return non 404 onwards', async () => {
-      const res = await r.get('/files?currentPage=1').set('Host', 'api.domain2.cz')
+      const res = await r.get('/api.domain2.cz/files?currentPage=1')
       res.status.should.equal(200)
       await fs.promises.writeFile(fileName, newConfig)
       await new Promise(resolve => setTimeout(resolve, 1500))
-      const res2 = await r.get('/files?currentPage=1').set('Host', 'api.domain2.cz')
+      const res2 = await r.get('/api.domain2.cz/files?currentPage=1')
       res2.status.should.equal(404)
-      const res3 = await r.get('/files?currentPage=1').set('Host', 'api.huhu.cz')
+      const res3 = await r.get('/api.huhu.cz/files?currentPage=1')
       res3.status.should.equal(200)
     })
 
