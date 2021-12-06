@@ -1,21 +1,25 @@
-import _ from 'underscore'
-import { APIError } from 'modularni-urad-utils'
-import methods from 'entity-api-base'
+const _entityMWDB = {}
 
-export default (ctx, app) => {
-  const { knex, auth, express } = ctx
-  const JSONBodyParser = express.json()
+export function invalidateEntityMW (tenantid, name) {
+  delete _entityMWDB[[tenantid, name]]
+}
+
+export default (ctx) => {
+  const { knex, auth, express, bodyParser, ErrorClass } = ctx
+  const _ = ctx.require('underscore')
+  const EntityMWBase = ctx.require('entity-api-base').default
+  const app = express()
 
   app.get('/:name', _getConfig, (req, res, next) => {
     req.query.filter = req.query.filter ? JSON.parse(req.query.filter) : undefined
-    methods.list(req.query, req.entityCfg, knex).then(info => {
+    req.entityMW.list(req.query, req.tenantid).then(info => {
       res.json(info)
       next()
     }).catch(next)
   })
 
   app.get('/:name/config.json', _getConfig, (req, res, next) => {
-    res.json(_.omit(req.entityCfg, 'tablename', 'orgid'))
+    res.json(_.omit(req.entityCfg, 'tablename'))
   })
   
   app.get('/:name/export.csv', _getConfig, (req, res, next) => {
@@ -24,7 +28,7 @@ export default (ctx, app) => {
       'Transfer-Encoding': 'chunked'
     })
     req.query.filter = req.query.filter ? JSON.parse(req.query.filter) : undefined
-    methods.csv_export(req.query, req.entityCfg, res, knex)
+    req.entityMW.csv_export(req.query, res, req.tenantid)
       .then(created => {
         res.end()
       })
@@ -32,26 +36,26 @@ export default (ctx, app) => {
   })
 
   app.post('/:name', 
-    _getConfig, auth.session, _required, _canModify, JSONBodyParser, _checkData, 
+    _getConfig, auth.session, _required, _canModify, bodyParser, _checkData, 
     async (req, res, next) => {
       Object.assign(req.body, { createdby: req.user.id })
       try {
-        const created = await methods.create(req.body, req.entityCfg, knex)
+        const created = await req.entityMW.create(req.body, req.tenantid)
         res.status(201).json(created[0])
       } catch (err) {
-        next(new APIError(400, err.toString()))
+        next(new ErrorClass(400, err.toString()))
       }
     })
 
   app.put('/:name/:id', _getConfig, auth.session, auth.required, 
-    _canModify, JSONBodyParser, _checkData, 
+    _canModify, bodyParser, _checkData, 
     async (req, res, next) => {
       try {
-        const existing = await methods.get(req.params.id, req.entityCfg, knex)
-        const updated = await methods.update(req.params.id, req.body, req.entityCfg, knex)
+        const existing = await req.entityMW.get(req.params.id, req.tenantid)
+        const updated = await req.entityMW.update(req.params.id, req.body, req.tenantid)
         res.json(updated[0])
       } catch(err) {
-        next(new APIError(400, err.toString()))
+        next(new ErrorClass(400, err.toString()))
       }
     })
   
@@ -63,23 +67,37 @@ export default (ctx, app) => {
       return i.length > 0
     }
     const canI = req.user && amIModifyer()
-    return canI ? next() : next(new APIError(401, 'i am not modifier'))
+    return canI ? next() : next(new ErrorClass(401, 'i am not modifier'))
   }
 
   function _checkData (req, res, next) {
     try {
-      methods.check_data(req.body, req.entityCfg)
+      req.entityMW.check_data(req.body)
       next()
     } catch (err) {
-      next(new APIError(400, 'wrong data'))
+      next(new ErrorClass(400, 'wrong data'))
     }
   }
 
+  function _createEntityMW (tenantid, name, entityCfg) {
+    const config = {
+      tablename: name,
+      editables: entityCfg.editables || entityCfg.attrs.map(i => {
+        return i.name
+      })
+    }
+    const key = [tenantid, name]
+    _entityMWDB[key] = EntityMWBase(config, knex, ErrorClass)
+    return _entityMWDB[key]
+  }
+
   function _getConfig (req, res, next) {
-    req.entityCfg = _.get(req.orgconfig, ['collections', req.params.name], null)
+    req.entityCfg = _.get(req.tenantcfg, ['collections', req.params.name], null)
+    req.entityMW = _entityMWDB[[req.tenantid, req.params.name]] || 
+      _createEntityMW(req.tenantid, req.params.name, req.entityCfg)
     return req.entityCfg
       ? next() 
-      : next(new APIError(404, `unknown collection ${req.params.name}`))
+      : next(new ErrorClass(404, `unknown collection ${req.params.name}`))
   }
 
   function _getSystemUser (req) {

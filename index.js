@@ -1,25 +1,25 @@
-import express from 'express'
-import cors from 'cors'
-import { attachPaginate } from 'knex-paginate'
-import { auth, initDB, initErrorHandlers,
-  initConfigManager,
-  CORSconfigCallback, createLoadOrgConfigMW } from 'modularni-urad-utils'
-import ConfigManager from './api/config_manager'
-import initRoutes from './api/routes'
+import initApi from './api/routes'
+import migrateAll from './api/migrator'
 
-export default async function init (mocks = null) {
-  const knex = mocks ? await mocks.dbinit() : await initDB(false)
-  attachPaginate()
-  await initConfigManager(process.env.CONFIG_FOLDER, ConfigManager(knex))
-  
-  const app = express()
-  process.env.NODE_ENV !== 'test' && app.use(cors(CORSconfigCallback))
-
-  const api = express()
-  initRoutes({ express, knex, auth }, api)
-
-  app.use('/:domain/', createLoadOrgConfigMW(req => req.params.domain), api)
-
-  initErrorHandlers(app) // ERROR HANDLING
-  return app
+async function migrateCollections(config, knex, schema) {
+  await migrateAll(config, knex, schema)
 }
+
+async function migrateTenantConfig(keys2migrate, knex, configs) {
+  const currKey = keys2migrate.pop()
+  const config = configs[currKey]
+  console.log(`----- uni: migration to schema ${config.orgid} start ------`)
+  await knex.raw(`CREATE SCHEMA IF NOT EXISTS "${config.orgid}"`)
+  await migrateCollections(config, knex, config.orgid)
+  console.log(`----- uni: migration to schema ${config.orgid} ended ------`)
+  return keys2migrate.length > 0 
+    ? migrateTenantConfig(keys2migrate, knex, configs) : 'ok'
+}
+
+export function migrateDB (knex, schemas = null, configs = null) {
+  return configs.collections !== undefined
+    ? migrateCollections(configs, knex) // configs are in fact single config
+    : migrateTenantConfig(Object.keys(configs), knex, configs)
+}
+
+export const init = initApi

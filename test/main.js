@@ -1,31 +1,24 @@
 import chai from 'chai'
 const chaiHttp = require('chai-http')
 chai.use(chaiHttp)
+chai.should()
 
-const g = require('./env/init')
+const g = { chai }
+require('./env/init')(g)
 
 describe('app', () => {
-  before(done => {
-    const TestedModule = require('../index')
-    g.InitApp(TestedModule.default).then(app => {
-      g.server = app.listen(g.port, '127.0.0.1', (err) => {
-        if (err) return done(err)
-        done()
-      })
-    }).catch(done)
+  before(() => {
+    const InitModule = require('../index')
+    return g.InitApp(InitModule)
   })
-  after(done => {
-    g.server.close()
-    g.close()
-    done()
-  })
+  after(g.close)
 
   describe('API', () => {
     //
     const submodules = [
-      './posts_t',
-      './files_t',
-      './config_t'
+      './suites/posts_t',
+      // './suites/files_t',
+      // './suites/config_t'
     ]
     submodules.map((i) => {
       const subMod = require(i)

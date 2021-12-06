@@ -1,13 +1,22 @@
-/* global describe it */
-import fs from 'fs'
-import path from 'path'
-const chai = require('chai')
-chai.should()
-// import _ from 'underscore'
 
 module.exports = (g) => {
   //
-  const r = chai.request(g.baseurl)
+  const r = g.chai.request(g.baseurl)
+  "files": {
+    "modifyGroups": "fileupdater",
+    "attrs": [{
+      "name": "nazev",
+      "component": "dyn-input",
+      "fieldcomponent": true,
+      "label": "Nazev",
+      "rules": "required",
+      "type": "string"
+    }, {
+      "name": "size",
+      "fieldcomponent": true,
+      "type": "integer"
+    }]
+  }
   const newConfig = `
 domains:
   - api.huhu.cz
