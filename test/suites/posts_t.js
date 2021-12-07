@@ -5,7 +5,7 @@ module.exports = (g) => {
   const p1 = {
     title: 'app1',
     obrazek: 'p1',
-    published: '',
+    published: new Date(),
     content: 'fjdkjf'
   }
 

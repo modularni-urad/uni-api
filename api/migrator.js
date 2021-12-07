@@ -27,10 +27,10 @@ async function migrate (tableNames, config, knex, schema) {
   const collectionName = tableNames.pop()
   const tableExists = await builder.hasTable(collectionName)
   if (tableExists) {
-    await Promise.all(_.each(config.attrs, a => {
-      // columnDefinition(a, table, knex) // TODO
-      // hasColumn
-    }))
+    // await Promise.all(_.each(config.attrs, a => {
+    //   columnDefinition(a, table, knex) // TODO
+    //   hasColumn
+    // }))
   } else {
     await builder.createTable(collectionName, (table) => {
       table.increments('id').primary()

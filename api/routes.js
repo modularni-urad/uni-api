@@ -37,25 +37,21 @@ export default (ctx) => {
 
   app.post('/:name', 
     _getConfig, auth.session, _required, _canModify, bodyParser, _checkData, 
-    async (req, res, next) => {
+    (req, res, next) => {
       Object.assign(req.body, { createdby: req.user.id })
-      try {
-        const created = await req.entityMW.create(req.body, req.tenantid)
+      req.entityMW.create(req.body, req.tenantid).then(created => {
         res.status(201).json(created[0])
-      } catch (err) {
-        next(new ErrorClass(400, err.toString()))
-      }
+      }).catch(next)
     })
 
-  app.put('/:name/:id', _getConfig, auth.session, auth.required, 
-    _canModify, bodyParser, _checkData, 
+  app.put('/:name/:id', _getConfig, auth.session, _canModify, bodyParser, _checkData, 
     async (req, res, next) => {
       try {
         const existing = await req.entityMW.get(req.params.id, req.tenantid)
         const updated = await req.entityMW.update(req.params.id, req.body, req.tenantid)
         res.json(updated[0])
       } catch(err) {
-        next(new ErrorClass(400, err.toString()))
+        next(err)
       }
     })
   
