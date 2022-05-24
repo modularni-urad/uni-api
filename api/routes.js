@@ -89,7 +89,8 @@ export default (ctx) => {
 
   function _getConfig (req, res, next) {
     req.entityCfg = _.get(req.tenantcfg, ['collections', req.params.name], null)
-    req.entityMW = _entityMWDB[[req.tenantid, req.params.name]] || 
+    req.entityMW = req.entityCfg && 
+      _entityMWDB[[req.tenantid, req.params.name]] || 
       _createEntityMW(req.tenantid, req.params.name, req.entityCfg)
     return req.entityCfg
       ? next() 
