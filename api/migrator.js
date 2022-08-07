@@ -1,4 +1,4 @@
-import { invalidateEntityMW } from './routes'
+import { invalidateEntityMW } from './routes.js'
 
 function columnDefinition (config, table, knex) {
   let sb = table[config.type](config.name)

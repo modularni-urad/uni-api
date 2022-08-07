@@ -1,6 +1,6 @@
 export default {
   collections: {
-    "posts": {
+    "smallposts": {
       "attrs": [{
         "name": "title",
         "component": "dyn-input",

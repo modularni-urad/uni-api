@@ -1,3 +1,6 @@
+import _ from 'underscore'
+import EntityMWBase from 'entity-api-base'
+
 const _entityMWDB = {}
 
 export function invalidateEntityMW (tenantid, name) {
@@ -6,8 +9,6 @@ export function invalidateEntityMW (tenantid, name) {
 
 export default (ctx) => {
   const { knex, auth, express, bodyParser, ErrorClass } = ctx
-  const _ = ctx.require('underscore')
-  const EntityMWBase = ctx.require('entity-api-base').default
   const app = express()
 
   app.get('/:name', _getConfig, (req, res, next) => {

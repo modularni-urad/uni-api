@@ -1,16 +1,12 @@
 import _ from 'underscore'
-const Knex = require('knex')
+import { newDb } from 'pg-mem'
 
 export default function initDB () {
-  const opts = {
-    client: 'sqlite3',
-    connection: {
-      filename: process.env.DATABASE_URL
-    },
-    useNullAsDefault: true,
-    debug: true
-  }
-  const knex = Knex(opts)
+  const db = newDb();
+
+  // create a Knex instance bound to this db
+  //  =>  This replaces require('knex')({ ... })
+  const knex = db.adapters.createKnex({ debug: true })
 
   return new Promise(resolve => resolve(knex))
 }

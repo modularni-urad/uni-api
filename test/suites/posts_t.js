@@ -1,4 +1,5 @@
-module.exports = (g) => {
+
+export default (g) => {
   //
   const r = g.chai.request(g.baseurl)
 
@@ -9,21 +10,21 @@ module.exports = (g) => {
     content: 'fjdkjf'
   }
 
-  return describe('UNIAPI posts', () => {
+  return describe('UNIAPI smallposts', () => {
     // it('must not create a new item wihout approp group', async () => {
-    //   const res = await r.post('/points').send(p1)
+    //   const res = await r.post('/smallposts').send(p1)
     //   res.status.should.equal(403)
     // })
 
     // it('must not create a new post on wrong domain', async () => {
-    //   const res = await r.post('/posts').send(p1)
+    //   const res = await r.post('/smallposts').send(p1)
     //     .set('Authorization', 'Bearer f')
     //   res.status.should.equal(404)
     // })
 
     it('shall create a new item p1', async () => {
       // g.mockUser.usergroups.push('waterman_admin')
-      const res = await r.post('/posts').send(p1)
+      const res = await r.post('/smallposts').send(p1)
         .set('Authorization', 'Bearer f')
       res.status.should.equal(201)
     })
@@ -40,7 +41,7 @@ module.exports = (g) => {
     // })
 
     it('shall get the pok1 with pagination', async () => {
-      const res = await r.get('/posts?currentPage=1&perPage=10&sort=id:asc')
+      const res = await r.get('/smallposts?currentPage=1&perPage=10&sort=id:asc')
       res.status.should.equal(200)
       res.body.data.should.have.lengthOf(1)
       res.body.data[0].title.should.equal(p1.title)
@@ -49,14 +50,14 @@ module.exports = (g) => {
 
     it('shall get the pok1 with filter', async () => {
       const filter = JSON.stringify({ title: p1.title })
-      const res = await r.get('/posts?filter=' + filter)
+      const res = await r.get('/smallposts?filter=' + filter)
       res.status.should.equal(200)
       res.body.should.have.lengthOf(1)
       res.body[0].title.should.equal(p1.title)
     })
 
     it('shall get csv export', async () => {
-      const res = await r.get('/posts/export.csv')
+      const res = await r.get('/smallposts/export.csv')
       res.status.should.equal(200)
       res.headers['content-type'].indexOf('text/csv').should.equal(0)
     })
